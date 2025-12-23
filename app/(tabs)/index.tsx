@@ -1,30 +1,47 @@
-import { StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
 
-export default function Welcome() {
+const STORAGE_KEYS = {
+  ONBOARDING_COMPLETE: "wobread_onboarding_complete",
+  IS_LOGGED_IN: "wobread_is_logged_in",
+};
+
+export default function Index() {
+  useEffect(() => {
+    const bootstrap = async () => {
+      const onboarded = await AsyncStorage.getItem(
+        STORAGE_KEYS.ONBOARDING_COMPLETE
+      );
+      const loggedIn = await AsyncStorage.getItem(STORAGE_KEYS.IS_LOGGED_IN);
+
+      if (!onboarded) {
+        router.replace("/onboarding/welcome");
+        return;
+      }
+
+      if (!loggedIn) {
+        router.replace("/auth/login");
+        return;
+      }
+
+      router.replace("/(tabs)");
+    };
+
+    bootstrap();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Wobread</Text>
-      <Text style={styles.subtitle}>
-        Comfort fiction for a mindful pregnancy journey
-      </Text>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#0E0F12",
+      }}
+    >
+      <ActivityIndicator />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0E0F12",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    color: "#FFFFFF",
-    fontSize: 28,
-    fontWeight: "600",
-  },
-  subtitle: {
-    color: "#B3B3B3",
-    marginTop: 8,
-  },
-});
